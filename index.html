@@ -1,203 +1,254 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MindMath - Brain Trainer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindMath - Brain Trainer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .fade {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-r from-blue-100 to-purple-100 flex justify-center items-center min-h-screen p-4">
-    <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md transition-transform hover:scale-105">
-        <h1 class="text-3xl font-semibold text-indigo-600 text-center mb-6">MindMath</h1>
-        <div class="mb-4">
-            <p class="text-xl text-gray-700 text-center">Time: <span id="time" class="font-semibold text-red-500">30</span>s</p>
-        </div>
-        <div class="mb-6">
-            <p id="question" class="text-2xl font-bold text-blue-800 text-center"></p>
-            <input type="number" id="answer" class="mt-4 w-full px-4 py-2 rounded-md border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-center" placeholder="Your answer">
-            <p id="feedback" class="mt-4 text-center font-medium"></p>
-        </div>
-        <div class="mb-4">
-            <button onclick="checkAnswer()" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transition-colors duration-300 w-full">Submit</button>
-        </div>
-        <div class="mb-6">
-            <p class="text-lg text-green-600 text-center">Score: <span id="score" class="font-semibold">0</span></p>
-        </div>
+<body class="bg-gradient-to-r from-blue-100 to-purple-100 flex flex-col items-center min-h-screen p-4">
+  <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md transition-transform hover:scale-105">
+    <h1 class="text-3xl font-semibold text-indigo-600 text-center mb-6">MindMath</h1>
 
-        <div class="leaderboard mt-8">
-            <h2 class="text-2xl font-semibold text-gray-800 text-center mb-4">Leaderboard</h2>
-            <ol id="leaderboard-list" class="list-decimal list-inside space-y-2">
-            </ol>
-        </div>
+    <div id="game-area" class="flex flex-col items-center">
+      <p class="text-xl text-gray-700 text-center mb-2">Time: <span id="time" class="font-semibold text-red-500">30</span>s</p>
+
+      <!-- New Level Display -->
+      <p id="level" class="text-lg text-purple-700 font-semibold mb-2"></p>
+
+      <p id="question" class="text-2xl font-bold text-blue-800 text-center mb-4"></p>
+      <input type="number" id="answer" class="mb-4 w-full px-4 py-2 rounded-md border border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-center" placeholder="Your answer">
+
+      <p id="feedback" class="mt-2 mb-4 text-center font-medium"></p>
+
+      <button onclick="checkAnswer()" id="submit-btn" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-colors duration-300 mb-4 w-full">Submit</button>
+
+      <p class="text-lg text-green-600 text-center mb-4">Score: <span id="score" class="font-semibold">0</span></p>
+
+      <button onclick="startGame()" id="retry-btn" class="hidden bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-green-400 transition-colors duration-300 mb-6 w-full">Retry</button>
     </div>
 
-    <script>
-        const questionElement = document.getElementById('question');
-        const answerElement = document.getElementById('answer');
-        const feedbackElement = document.getElementById('feedback');
-        const scoreElement = document.getElementById('score');
-        const timeElement = document.getElementById('time');
-        const leaderboardList = document.getElementById('leaderboard-list');
+    <div class="leaderboard mt-8">
+      <h2 class="text-2xl font-semibold text-gray-800 text-center mb-4">Leaderboard</h2>
+      <ol id="leaderboard-list" class="list-decimal list-inside space-y-2 text-gray-700"></ol>
+    </div>
 
-        let currentQuestion;
-        let correctAnswer;
-        let score = 0;
-        let timeLeft = 30;
-        let timer;
-        let questionsAsked = 0;
-        let gameEnded = false;
-        let scores = [];
-        const totalQuestions = 10;
+    <div class="score-history mt-8">
+      <h2 class="text-2xl font-semibold text-gray-800 text-center mb-4">Score History</h2>
+      <ol id="history-list" class="list-decimal list-inside space-y-2 text-gray-600"></ol>
+    </div>
+  </div>
 
-        function loadScores() {
-            const storedScores = localStorage.getItem('mindmath-scores');
-            if (storedScores) {
-                scores = JSON.parse(storedScores);
-            }
-            updateLeaderboard();
+  <script>
+    const questionElement = document.getElementById('question');
+    const answerElement = document.getElementById('answer');
+    const feedbackElement = document.getElementById('feedback');
+    const scoreElement = document.getElementById('score');
+    const timeElement = document.getElementById('time');
+    const leaderboardList = document.getElementById('leaderboard-list');
+    const historyList = document.getElementById('history-list');
+    const submitBtn = document.getElementById('submit-btn');
+    const retryBtn = document.getElementById('retry-btn');
+    const levelElement = document.getElementById('level');
+
+    let currentQuestion;
+    let correctAnswer;
+    let score = 0;
+    let timeLeft = 30;
+    let timer;
+    let questionsAsked = 0;
+    let gameEnded = false;
+    let scores = [];
+    let history = [];
+    const totalQuestions = 10;
+
+    function loadScores() {
+      const storedScores = localStorage.getItem('mindmath-scores');
+      if (storedScores) {
+        scores = JSON.parse(storedScores);
+      }
+      updateLeaderboard();
+    }
+
+    function loadHistory() {
+      const storedHistory = localStorage.getItem('mindmath-history');
+      if (storedHistory) {
+        history = JSON.parse(storedHistory);
+      }
+      updateHistory();
+    }
+
+    function saveScore(name, score) {
+      scores.push({ name: name, score: score });
+      scores.sort((a, b) => b.score - a.score);
+      scores = scores.slice(0, 5);
+      localStorage.setItem('mindmath-scores', JSON.stringify(scores));
+      updateLeaderboard();
+    }
+
+    function saveHistory(score) {
+      history.push({ date: new Date().toLocaleString(), score: score });
+      history = history.slice(-10);
+      localStorage.setItem('mindmath-history', JSON.stringify(history));
+      updateHistory();
+    }
+
+    function updateLeaderboard() {
+      leaderboardList.innerHTML = '';
+      scores.forEach((entry, index) => {
+        const li = document.createElement('li');
+        li.textContent = ${index + 1}. ${entry.name} - ${entry.score};
+        leaderboardList.appendChild(li);
+      });
+    }
+
+    function updateHistory() {
+      historyList.innerHTML = '';
+      history.forEach(entry => {
+        const li = document.createElement('li');
+        li.textContent = ${entry.date}: ${entry.score} points;
+        historyList.appendChild(li);
+      });
+    }
+
+    function getLevel() {
+      if (score < 5) return 'Easy';
+      if (score < 15) return 'Medium';
+      return 'Hard';
+    }
+
+    function generateQuestion() {
+      const level = getLevel();
+
+      // Update Level Display
+      levelElement.textContent = Level: ${level};
+      levelElement.classList.add('fade');
+      setTimeout(() => {
+        levelElement.classList.remove('fade');
+      }, 500);
+
+      let a, b, op;
+
+      if (level === 'Easy') {
+        a = randomInt(1, 10);
+        b = randomInt(1, 10);
+        op = randomChoice(['+', '-']);
+      } else if (level === 'Medium') {
+        a = randomInt(10, 100);
+        b = randomInt(10, 100);
+        op = randomChoice(['+', '-', '*']);
+      } else {
+        a = randomInt(50, 200);
+        b = randomInt(2, 20);
+        op = randomChoice(['+', '-', '*', '/']);
+        if (op === '/') {
+          a = a * b;
         }
+      }
 
-        function saveScore(name, score) {
-            scores.push({ name: name, score: score });
-            scores.sort((a, b) => b.score - a.score);
-            scores = scores.slice(0, 5);
-            localStorage.setItem('mindmath-scores', JSON.stringify(scores));
-            updateLeaderboard();
-        }
+      currentQuestion = ${a} ${op} ${b};
+      correctAnswer = Math.round(eval(currentQuestion));
+      questionElement.textContent = currentQuestion + ' = ?';
+    }
 
-        function updateLeaderboard() {
-            leaderboardList.innerHTML = '';
-            scores.forEach((entry, index) => {
-                const li = document.createElement('li');
-                li.className = "text-md text-gray-700";
-                li.textContent = `${index + 1}. ${entry.name} - ${entry.score}`;
-                leaderboardList.appendChild(li);
-            });
-        }
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
-        function getLevel() {
-            if (score < 10) return 'Easy';
-            if (score < 20) return 'Medium';
-            return 'Hard';
-        }
+    function randomChoice(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
 
-        function generateQuestion() {
-            const level = getLevel();
-            let a, b, op;
+    function checkAnswer() {
+      if (gameEnded) return;
 
-            if (level === 'Easy') {
-                a = randomInt(1, 10);
-                b = randomInt(1, 10);
-                op = randomChoice(['+', '-']);
-            } else if (level === 'Medium') {
-                a = randomInt(10, 50);
-                b = randomInt(10, 50);
-                op = randomChoice(['+', '-', '*']);
-            } else {
-                a = randomInt(50, 100);
-                b = randomInt(1, 20);
-                op = randomChoice(['+', '-', '*']);
-            }
+      const userAnswer = parseInt(answerElement.value);
+      if (isNaN(userAnswer)) {
+        feedbackElement.textContent = "Invalid input. Please enter a number.";
+        feedbackElement.className = "mt-4 mb-4 text-center font-medium text-red-500";
+        return;
+      }
 
-            currentQuestion = `${a} ${op} ${b}`;
-            correctAnswer = eval(currentQuestion);
-            questionElement.textContent = currentQuestion + ' = ?';
-        }
+      if (userAnswer === correctAnswer) {
+        feedbackElement.textContent = "Correct!";
+        feedbackElement.className = "mt-4 mb-4 text-center font-medium text-green-500";
+        score++;
+      } else {
+        feedbackElement.textContent = Wrong! The correct answer was ${correctAnswer};
+        feedbackElement.className = "mt-4 mb-4 text-center font-medium text-red-500";
+      }
 
-        function randomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
+      scoreElement.textContent = score;
+      answerElement.value = '';
+      questionsAsked++;
 
-        function randomChoice(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
+      if (questionsAsked >= totalQuestions || timeLeft <= 0) {
+        endGame();
+      } else {
+        generateQuestion();
+      }
+    }
 
-        function checkAnswer() {
-            if (gameEnded) return;
+    function updateTimer() {
+      if (gameEnded) return;
+      timeLeft--;
+      timeElement.textContent = timeLeft;
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }
 
-            const userAnswer = parseInt(answerElement.value);
-            if (isNaN(userAnswer)) {
-                feedbackElement.textContent = "Invalid input. Please enter a number.";
-                feedbackElement.className = "mt-4 text-center font-medium text-red-500";
-                return;
-            }
+    function startGame() {
+      score = 0;
+      timeLeft = 30;
+      gameEnded = false;
+      questionsAsked = 0;
+      scoreElement.textContent = score;
+      timeElement.textContent = timeLeft;
+      answerElement.style.display = 'block';
+      submitBtn.disabled = false;
+      retryBtn.classList.add('hidden');
+      feedbackElement.textContent = '';
+      generateQuestion();
+      timer = setInterval(updateTimer, 1000);
+      answerElement.focus();
+    }
 
-            if (userAnswer === correctAnswer) {
-                feedbackElement.textContent = "Correct!";
-                feedbackElement.className = "mt-4 text-center font-medium text-green-500";
-                score++;
-            } else {
-                feedbackElement.textContent = `Wrong! The correct answer is ${correctAnswer}`;
-                feedbackElement.className = "mt-4 text-center font-medium text-red-500";
-            }
+    function endGame() {
+      gameEnded = true;
+      clearInterval(timer);
+      questionElement.textContent = "Game Over!";
+      levelElement.textContent = "";
+      answerElement.style.display = 'none';
+      submitBtn.disabled = true;
+      retryBtn.classList.remove('hidden');
+      const playerName = prompt("Enter your name:");
+      if (playerName) {
+        saveScore(playerName, score);
+      }
+      saveHistory(score);
+      loadScores();
+      loadHistory();
+    }
 
-            scoreElement.textContent = score;
-            answerElement.value = '';
-            questionsAsked++;
-
-            if (questionsAsked >= totalQuestions || timeLeft <= 0) {
-                endGame();
-                return;
-            }
-
-            if (timeLeft > 0) {
-                generateQuestion();
-            }
-        }
-
-        function updateTimer() {
-            if (gameEnded) return;
-
-            timeLeft--;
-            timeElement.textContent = timeLeft;
-
-            if (timeLeft <= 0) {
-                endGame();
-            }
-        }
-
-        function startGame() {
-            score = 0;
-            timeLeft = 30;
-            gameEnded = false;
-            questionsAsked = 0;
-            scoreElement.textContent = score;
-            timeElement.textContent = timeLeft;
-            generateQuestion();
-            timer = setInterval(updateTimer, 1000);
-            answerElement.focus();
-            feedbackElement.textContent = '';
-            document.querySelector('.submit-btn').disabled = false;
-            answerElement.style.display = 'block';
-            document.querySelector('.submit-btn').style.display = 'block';
-        }
-
-        function endGame() {
-            gameEnded = true;
-            clearInterval(timer);
-            timeElement.textContent = "0";
-            questionElement.textContent = "Game Over!";
-            answerElement.style.display = 'none';
-            document.querySelector('.submit-btn').disabled = true;
-
-            const playerName = prompt("Enter your name:");
-            if (playerName) {
-                saveScore(playerName, score);
-            }
-            loadScores();
-            setTimeout(startGame, 2000);
-        }
-
-        loadScores();
-        startGame();
-    </script>
+    loadScores();
+    loadHistory();
+    startGame();
+  </script>
 </body>
 </html>
