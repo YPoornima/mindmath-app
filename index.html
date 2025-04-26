@@ -112,7 +112,7 @@
       leaderboardList.innerHTML = '';
       scores.forEach((entry, index) => {
         const li = document.createElement('li');
-        li.textContent = ${index + 1}. ${entry.name} - ${entry.score};
+        li.textContent = `${index + 1}. ${entry.name} - ${entry.score}`;
         leaderboardList.appendChild(li);
       });
     }
@@ -121,7 +121,7 @@
       historyList.innerHTML = '';
       history.forEach(entry => {
         const li = document.createElement('li');
-        li.textContent = ${entry.date}: ${entry.score} points;
+        li.textContent = `${entry.date}: ${entry.score} points`;
         historyList.appendChild(li);
       });
     }
@@ -136,7 +136,7 @@
       const level = getLevel();
 
       // Update Level Display
-      levelElement.textContent = Level: ${level};
+      levelElement.textContent = `Level: ${level}`;
       levelElement.classList.add('fade');
       setTimeout(() => {
         levelElement.classList.remove('fade');
@@ -161,7 +161,7 @@
         }
       }
 
-      currentQuestion = ${a} ${op} ${b};
+      currentQuestion = `${a} ${op} ${b}`;
       correctAnswer = Math.round(eval(currentQuestion));
       questionElement.textContent = currentQuestion + ' = ?';
     }
@@ -189,7 +189,7 @@
         feedbackElement.className = "mt-4 mb-4 text-center font-medium text-green-500";
         score++;
       } else {
-        feedbackElement.textContent = Wrong! The correct answer was ${correctAnswer};
+        feedbackElement.textContent = `Wrong! The correct answer was ${correctAnswer}`;
         feedbackElement.className = "mt-4 mb-4 text-center font-medium text-red-500";
       }
 
